@@ -1,0 +1,42 @@
+resenje prvog upita:
+
+SELECT `user_id`,
+COUNT(`user_id`) AS `value_occurrence`
+FROM `login_history`
+WHERE `login_action` = 'logout' AND YEAR(`login_time`) = 2012 AND MONTH(`login_time`) = 9 AND DAYOFWEEK(`login_time`) = 4
+GROUP BY `user_id` DESC
+LIMIT 1
+
+
+resenje drugog upita:
+
+select ss.user_id, ss.MONTH, maxt.max
+from
+(
+SELECT f.user_id, s.MONTH, MAX(s.num_logouts) max
+FROM login_history as f
+join(
+SELECT user_id, MONTH(login_time) AS MONTH, COUNT(login_action) AS num_logouts
+FROM login_history
+WHERE login_action = 'logout'
+GROUP BY MONTH,user_id
+) AS s
+where f.user_id = s.user_id
+group by MONTH
+) as maxt
+inner join
+(
+SELECT user_id, MONTH(login_time) AS MONTH,COUNT(login_action) AS num_logouts
+FROM login_history
+WHERE login_action = 'logout'
+GROUP BY MONTH, login_history.user_id
+) as ss
+where ss.num_logouts = maxt.max and ss.MONTH = maxt.MONTH
+group by ss.MONTH
+
+
+resenje treceg upita:
+
+SELECT `user_id`, count(`login_action`) AS `total number of actions`
+FROM `login_history`
+GROUP BY `user_id`
